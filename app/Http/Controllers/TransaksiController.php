@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Transaksi;
 use App\Detail_trans;
+use App\DataMobil;
 use DB;
 use JWTAuth;
 use Auth;
@@ -32,13 +33,13 @@ class TransaksiController extends Controller
           $datatrans[$no]['tgl_sewa'] = $tr->tgl_sewa;
           $datatrans[$no]['tgl_kembali'] = $tr->tgl_kembali;
 
-          $grand=DB::table('detail_trans')->where('id_trans', $tr->id)->groupBy('id_trans')
+          $grand=DB::table('detail_trans')->groupBy('id_trans')
           ->select(DB::raw('sum(subtotal) as grand_total'))->first();
 
           $datatrans[$no]['grand_total'] = $grand->grand_total;
           $detail=DB::table('detail_trans')
-          ->join('jenis_mobil','jenis_mobil.id', '=', 'detail_trans.id_mobil')
-          ->join('data_mobil','data_mobil.id_jenis', '=', 'jenis_mobil.id')
+          ->join('data_mobil','data_mobil.id', '=', 'detail_trans.id_mobil')
+          ->join('jenis_mobil','jenis_mobil.id', '=', 'data_mobil.id_jenis')
           ->where('id_trans', $tr->id)
           ->select('jenis_mobil.jenis_mobil','data_mobil.nama_mobil', 'jenis_mobil.harga_sewa', 'detail_trans.qty', 'detail_trans.subtotal')
           ->get();
@@ -116,8 +117,8 @@ class TransaksiController extends Controller
       if($validator->fails()){
         return Response()->json($validator->errors());
       }
-      $harga=DB::table('jenis_mobil')->where('id', $request->id_mobil)->first();
-      $subtotal = ($harga->harga_sewa * $request->qty);
+      $harga=DB::table('jenis_mobil')->first();
+      $subtotal = $harga->harga_sewa * $request->qty;
       $simpan=Detail_trans::create([
         'id_trans'=>$request->id_trans,
         'id_mobil'=>$request->id_mobil,

@@ -86,6 +86,7 @@ class DatamobilController extends Controller
       if(Auth::user()->level=="admin"){
         $data=DB::table('data_mobil')
         ->join('jenis_mobil','jenis_mobil.id','=','data_mobil.id_jenis')
+        ->select('nama_mobil','jenis_mobil','merk','plat_nomor','harga_sewa','keterangan')
         ->get();
         $count=$data->count();
         $status=1;

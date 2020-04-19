@@ -51,5 +51,4 @@ use Illuminate\Http\Request;
   // // // detail_transaksi
   Route::post('/simpan_detail','TransaksiController@simpan')->middleware('jwt.verify');
 
-
   Route::get('/report/{tgl_trans}/{deadline}','TransaksiController@report')->middleware('jwt.verify');
